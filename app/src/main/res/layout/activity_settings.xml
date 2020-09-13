@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tvNew"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/new_alarm"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:textSize="30sp"/>
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:map="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            tools:context=".SettingsActivity"
+            android:layout_below="@id/tvNew"
+            android:layout_margin="15dp"/>
+
+
+        <ImageView
+            android:id="@+id/ivBackArrow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_back_black_24dp"
+            android:layout_margin="15dp"/>
+
+        <ImageView
+            android:id="@+id/ivDone"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_check_black_24dp"
+            android:layout_margin="15dp"
+            android:layout_alignParentRight="true"/>
+
+        <EditText
+            android:id="@+id/etAlarmName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/map"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:hint="@string/alarm_name"/>
+
+        <TextView
+            android:id="@+id/tvDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/etAlarmName"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="55dp"
+            android:layout_marginBottom="25dp"
+            android:text="@string/activation_distance"/>
+
+        <EditText
+            android:id="@+id/etDistance"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/etAlarmName"
+            android:layout_toRightOf="@id/tvDistance"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="20dp"
+            android:inputType="number"
+            android:text="10"/>
+
+        <TextView
+            android:id="@+id/tvKms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/etAlarmName"
+            android:layout_toRightOf="@id/etDistance"
+            android:layout_marginTop="20dp"
+            android:text="@string/km"/>
+
+        <TextView
+            android:id="@+id/tvRingtone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvDistance"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/ringtone"
+            android:textSize="20dp"/>
+
+        <ImageView
+            android:id="@+id/ivChevron"
+            android:src="@drawable/ic_chevron_right_black_24dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="11dp"
+            android:layout_marginRight="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/tvDistance"/>
+
+        <TextView
+            android:id="@+id/tvRingtoneName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvDistance"
+            android:layout_toLeftOf="@+id/ivChevron"
+            android:layout_marginLeft="150dp"
+            android:layout_marginTop="12dp"
+            android:textSize="18sp"
+            android:text="@string/aegean_sea"
+            android:lines="1"
+            android:ellipsize="end"
+            android:layout_centerVertical="true"/>
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="@string/delete"
+            android:layout_margin="20dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+</layout>

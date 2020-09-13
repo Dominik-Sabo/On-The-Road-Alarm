@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">On The Road Alarm</string>
+    <string name="add">Add</string>
+    <string name="new_alarm">New Alarm</string>
+    <string name="ringtone">Ringtone:</string>
+    <string name="name">name</string>s
+    <string name="delete">Delete</string>
+    <string name="aegean_sea">Aegean Sea</string>
+    <string name="title_activity_settings">Map</string>
+    <string name="distance">distance</string>
+    <string name="km">km</string>
+    <string name="activation_distance">Activation Distance:</string>
+    <string name="alarm_name">Alarm Name</string>
+    <string name="stop">stop</string>
+</resources>
