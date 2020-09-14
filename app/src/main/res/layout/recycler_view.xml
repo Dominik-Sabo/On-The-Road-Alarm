@@ -6,7 +6,8 @@
     android:layout_marginBottom="5dp"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:background="#D3D3D3">
 
     <TextView
         android:id="@+id/tvName"
@@ -24,13 +25,14 @@
         android:layout_alignLeft="@id/tvName"
         android:layout_below="@id/tvName"/>
 
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
+        android:theme="@style/ThemeOverlay.MySwitchCompat"
         android:id="@+id/swSwitch"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
         android:layout_marginRight="20dp"
-        android:layout_alignBaseline="@id/tvName"/>
+        android:layout_alignBaseline="@id/tvName" />
 
 
 </RelativeLayout>

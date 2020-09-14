@@ -13,6 +13,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -49,7 +50,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-
+        supportActionBar?.hide();
 
         if(intent.hasExtra("position")){
             position = intent.getIntExtra("position", 0)
@@ -102,8 +103,13 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         binding.ivDone.setOnClickListener(){
-            finishFlag = true
-            finish()
+            if(binding.etDistance.text.toString().toInt() <= 0 || binding.etDistance.text.toString().toInt() > 100){
+                Toast.makeText(this, "Alarm activation distance should be between 0 and 100 km", Toast.LENGTH_LONG).show()
+            }
+            else{
+                finishFlag = true
+                finish()
+            }
         }
 
         binding.btnDelete.setOnClickListener(){
@@ -215,6 +221,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun finish() {
         if(finishFlag){
+            if (binding.etAlarmName.text.isBlank()) binding.etAlarmName.setText("Alarm")
             if(intent.hasExtra("position")){
                 repository.alarms[position].name = binding.etAlarmName.text.toString()
                 repository.alarms[position].location = alarmLocation

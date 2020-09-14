@@ -2,8 +2,8 @@ package com.sabo.dominik.ontheroadalarm
 
 import android.view.View
 import android.widget.RelativeLayout
-import android.widget.Switch
 import android.widget.TextView
+import androidx.appcompat.widget.SwitchCompat
 import androidx.recyclerview.widget.RecyclerView
 
 class AlarmViewHolder(itemView: View, private val clickInterface: AlarmClickInterface) :
@@ -11,7 +11,7 @@ class AlarmViewHolder(itemView: View, private val clickInterface: AlarmClickInte
 
     private val rvLayout: RelativeLayout = itemView.findViewById(R.id.rvLayout)
     private val tvName: TextView = itemView.findViewById(R.id.tvName)
-    private val swSwitch: Switch = itemView.findViewById(R.id.swSwitch)
+    private val swSwitch: SwitchCompat = itemView.findViewById(R.id.swSwitch)
     private val tvDistance: TextView = itemView.findViewById(R.id.tvDistance)
 
     override fun onClick(view: View?) {
