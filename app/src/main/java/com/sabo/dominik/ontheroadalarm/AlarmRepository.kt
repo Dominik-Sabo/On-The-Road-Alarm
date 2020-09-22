@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.sabo.dominik.ontheroadalarm.models.Alarm
 import java.lang.reflect.Type
 
 class AlarmRepository private constructor() {

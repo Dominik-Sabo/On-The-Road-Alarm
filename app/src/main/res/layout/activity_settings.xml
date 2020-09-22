@@ -20,7 +20,7 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            tools:context=".SettingsActivity"
+            tools:context=".activities.SettingsActivity"
             android:layout_below="@id/tvNew"
             android:layout_margin="15dp"/>
 
@@ -61,7 +61,7 @@
             android:text="@string/activation_distance"/>
 
         <EditText
-            android:id="@+id/etDistance"
+            android:id="@+id/etDistanceKms"
             android:layout_width="30dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/etAlarmName"
@@ -69,16 +69,41 @@
             android:layout_marginTop="5dp"
             android:layout_marginLeft="20dp"
             android:inputType="number"
-            android:text="10"/>
+            android:hint="@string/_0"
+            android:text="@string/_10"
+            android:maxLength="2"
+            android:textAlignment="center"/>
 
         <TextView
             android:id="@+id/tvKms"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/etAlarmName"
-            android:layout_toRightOf="@id/etDistance"
+            android:layout_toRightOf="@id/etDistanceKms"
             android:layout_marginTop="20dp"
             android:text="@string/km"/>
+
+        <EditText
+            android:id="@+id/etDistanceMs"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/etAlarmName"
+            android:layout_toRightOf="@id/tvKms"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
+            android:inputType="number"
+            android:textAlignment="center"
+            android:hint="@string/_0"
+            android:maxLength="3"/>
+
+        <TextView
+            android:id="@+id/tvMs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/etAlarmName"
+            android:layout_toRightOf="@id/etDistanceMs"
+            android:layout_marginTop="20dp"
+            android:text="@string/m"/>
 
         <TextView
             android:id="@+id/tvRingtone"
@@ -113,6 +138,15 @@
             android:lines="1"
             android:ellipsize="end"
             android:layout_centerVertical="true"/>
+
+        <Button
+            android:id="@+id/btnFavs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/set_from_favourites"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/tvRingtone"
+            android:layout_marginTop="40dp"/>
 
         <Button
             android:id="@+id/btnDelete"

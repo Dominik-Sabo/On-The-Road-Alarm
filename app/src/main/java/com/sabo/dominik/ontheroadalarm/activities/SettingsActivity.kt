@@ -1,4 +1,4 @@
-package com.sabo.dominik.ontheroadalarm
+package com.sabo.dominik.ontheroadalarm.activities
 
 import android.Manifest
 import android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -26,6 +26,9 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.sabo.dominik.ontheroadalarm.models.Alarm
+import com.sabo.dominik.ontheroadalarm.AlarmRepository
+import com.sabo.dominik.ontheroadalarm.R
 import com.sabo.dominik.ontheroadalarm.databinding.ActivitySettingsBinding
 
 
@@ -56,7 +59,13 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
             position = intent.getIntExtra("position", 0)
             binding.tvNew.text = repository.alarms[position].name
             binding.etAlarmName.setText(repository.alarms[position].name)
-            binding.etDistance.setText(repository.alarms[position].activationDistance.toString())
+            if(repository.alarms[position].activationDistance >= 1000){
+                binding.etDistanceKms.setText((repository.alarms[position].activationDistance/1000).toString())
+            }
+            else{
+                binding.etDistanceKms.setText("0")
+            }
+            binding.etDistanceMs.setText((repository.alarms[position].activationDistance%1000).toString())
             ringtonePath = Uri.parse(repository.alarms[position].ringtone)
             alarmLocation = repository.alarms[position].location
             binding.btnDelete.visibility = View.VISIBLE;
@@ -67,6 +76,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
                 RingtoneManager.TYPE_ALARM
             );
         }
+
 
         binding.tvRingtoneName.text = RingtoneManager.getRingtone(this, ringtonePath).getTitle(this)
 
@@ -79,7 +89,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         if(intent.hasExtra("position")){
-            map.addCircle(CircleOptions().center(alarmLocation).radius((binding.etDistance.text.toString().toInt()*1000).toDouble()).strokeColor(Color.RED))
+            map.addCircle(CircleOptions().center(alarmLocation).radius((binding.etDistanceKms.text.toString().toInt()*1000 + binding.etDistanceMs.text.toString().toInt()).toDouble() ).strokeColor(Color.RED))
             map.addMarker(MarkerOptions().position(alarmLocation))
             map.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
@@ -91,7 +101,15 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         map.setOnMapClickListener {
             map.clear()
-            if(binding.etDistance.text.isNotBlank()) map.addCircle(CircleOptions().center(it).radius((binding.etDistance.text.toString().toInt()*1000).toDouble()).strokeColor(Color.RED))
+            if(binding.etDistanceKms.text.isNotBlank() && binding.etDistanceMs.text.isNotBlank()){
+                map.addCircle(CircleOptions().center(it).radius((binding.etDistanceKms.text.toString().toInt()*1000 + binding.etDistanceMs.text.toString().toInt()).toDouble()).strokeColor(Color.RED))
+            }
+            else if(binding.etDistanceKms.text.isNotBlank()){
+                map.addCircle(CircleOptions().center(it).radius((binding.etDistanceKms.text.toString().toInt()*1000).toDouble()).strokeColor(Color.RED))
+            }
+            else if(binding.etDistanceMs.text.isNotBlank()){
+                map.addCircle(CircleOptions().center(it).radius((binding.etDistanceMs.text.toString().toInt()).toDouble()).strokeColor(Color.RED))
+            }
             map.addMarker(MarkerOptions().position(it))
             alarmLocation = it;
         }
@@ -103,8 +121,10 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         binding.ivDone.setOnClickListener(){
-            if(binding.etDistance.text.toString().toInt() <= 0 || binding.etDistance.text.toString().toInt() > 100){
-                Toast.makeText(this, "Alarm activation distance should be between 0 and 100 km", Toast.LENGTH_LONG).show()
+            if(binding.etDistanceKms.text.isBlank()) binding.etDistanceKms.setText("0")
+            if(binding.etDistanceMs.text.isBlank()) binding.etDistanceMs.setText("0")
+            if(binding.etDistanceKms.text.toString() == "0" && binding.etDistanceMs.text.toString() == "0"){
+                Toast.makeText(this, "Alarm activation distance cannot be 0", Toast.LENGTH_LONG).show()
             }
             else{
                 finishFlag = true
@@ -131,6 +151,10 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         binding.tvRingtoneName.setOnClickListener(){
             selectRingtone()
+        }
+
+        binding.btnFavs.setOnClickListener(){
+
         }
     }
 
@@ -226,7 +250,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
                 repository.alarms[position].name = binding.etAlarmName.text.toString()
                 repository.alarms[position].location = alarmLocation
                 repository.alarms[position].ringtone = ringtonePath.toString()
-                repository.alarms[position].activationDistance = binding.etDistance.text.toString().toInt()
+                repository.alarms[position].activationDistance = (binding.etDistanceKms.text.toString().toInt() * 1000) + binding.etDistanceMs.text.toString().toInt()
                 repository.alarms[position].isActive = true
                 val data: Intent = Intent()
                 data.putExtra("position", position)
@@ -238,7 +262,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
                         binding.etAlarmName.text.toString(),
                         alarmLocation,
                         ringtonePath.toString(),
-                        binding.etDistance.text.toString().toInt(),
+                        (binding.etDistanceKms.text.toString().toInt() * 1000) + binding.etDistanceMs.text.toString().toInt(),
                         true
                     )
                 )

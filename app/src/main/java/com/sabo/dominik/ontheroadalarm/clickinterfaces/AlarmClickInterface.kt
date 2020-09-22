@@ -1,4 +1,4 @@
-package com.sabo.dominik.ontheroadalarm
+package com.sabo.dominik.ontheroadalarm.clickinterfaces
 
 interface AlarmClickInterface {
     fun onAlarmClick(position: Int)

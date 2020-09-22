@@ -1,4 +1,4 @@
-package com.sabo.dominik.ontheroadalarm
+package com.sabo.dominik.ontheroadalarm.activities
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -12,7 +12,11 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
+import com.sabo.dominik.ontheroadalarm.*
+import com.sabo.dominik.ontheroadalarm.broadcastrecievers.GeofenceBroadcastReceiver
+import com.sabo.dominik.ontheroadalarm.clickinterfaces.AlarmClickInterface
 import com.sabo.dominik.ontheroadalarm.databinding.ActivityMainBinding
+import com.sabo.dominik.ontheroadalarm.recyclers.AlarmRecyclerAdapter
 
 
 class MainActivity : AppCompatActivity(), AlarmClickInterface {
@@ -24,7 +28,7 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
     private val repository: AlarmRepository = AlarmRepository.instance
 
     private lateinit var geofencingClient : GeofencingClient
-    private lateinit var adapter: RecyclerAdapter
+    private lateinit var alarmAdapter: AlarmRecyclerAdapter
 
     private lateinit var binding: ActivityMainBinding
 
@@ -36,16 +40,20 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
 
         geofencingClient = LocationServices.getGeofencingClient(this)
 
-        adapter = RecyclerAdapter(this)
+        alarmAdapter = AlarmRecyclerAdapter(this)
 
         binding.rvRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.rvRecyclerView.adapter = adapter
+        binding.rvRecyclerView.adapter = alarmAdapter
 
-        adapter.addData(repository.alarms)
+        alarmAdapter.addData(repository.alarms)
 
         binding.btnAdd.setOnClickListener(){
             val intent = Intent(this@MainActivity, SettingsActivity::class.java)
             startActivityForResult(intent, NEW_REQUEST_CODE)
+        }
+        binding.btnEdit.setOnClickListener(){
+            val intent = Intent(this@MainActivity, FavouritesActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -55,7 +63,7 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
     }
 
     override fun onResume() {
-        adapter.notifyDataSetChanged()
+        alarmAdapter.notifyDataSetChanged()
         super.onResume()
     }
 
@@ -64,13 +72,13 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
             RESULT_OK -> {
                 when (requestCode) {
                     NEW_REQUEST_CODE -> {
-                        adapter.addItem(repository.alarms.last())
+                        alarmAdapter.addItem(repository.alarms.last())
                         setGeoalarm(repository.alarms.size - 1)
                         Toast.makeText(applicationContext, "Geoalarm set", Toast.LENGTH_SHORT).show()
                     }
                     EDIT_REQUEST_CODE -> {
                         val position: Int = data!!.getIntExtra("position", 0)
-                        adapter.changeItem(repository.alarms[position], position)
+                        alarmAdapter.changeItem(repository.alarms[position], position)
                         setGeoalarm(position)
                         Toast.makeText(applicationContext, "Geoalarm set", Toast.LENGTH_SHORT).show()
                     }
@@ -78,7 +86,7 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
             }
             RESULT_DELETE -> {
                 val position = data!!.getIntExtra("position", 0)
-                adapter.removeItem(position)
+                alarmAdapter.removeItem(position)
                 geofencingClient.removeGeofences(getPendingIntent(position))
 
                 for (i in position until repository.alarms.size) {
@@ -102,7 +110,6 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
     }
 
     override fun onSwitchClick(position: Int) {
-        Toast.makeText(this, position.toString(), Toast.LENGTH_SHORT).show()
         repository.alarms[position].toggle()
         if(repository.alarms[position].isActive){
             setGeoalarm(position)
@@ -145,7 +152,7 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
             .setCircularRegion(
                 repository.alarms[position].location.latitude,
                 repository.alarms[position].location.longitude,
-                repository.alarms[position].activationDistance.toFloat() * 1000
+                repository.alarms[position].activationDistance.toFloat()
             )
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)

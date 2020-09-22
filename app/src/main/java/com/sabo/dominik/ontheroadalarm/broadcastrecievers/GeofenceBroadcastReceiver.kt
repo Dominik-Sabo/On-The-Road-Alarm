@@ -1,4 +1,4 @@
-package com.sabo.dominik.ontheroadalarm
+package com.sabo.dominik.ontheroadalarm.broadcastrecievers
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Build
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationServices
+import com.sabo.dominik.ontheroadalarm.activities.AlarmActivity
 
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {

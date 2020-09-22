@@ -1,4 +1,4 @@
-package com.sabo.dominik.ontheroadalarm
+package com.sabo.dominik.ontheroadalarm.activities
 
 import android.app.KeyguardManager
 import android.content.Context
@@ -12,6 +12,8 @@ import android.os.PowerManager.WakeLock
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import com.sabo.dominik.ontheroadalarm.AlarmRepository
+import com.sabo.dominik.ontheroadalarm.R
 import com.sabo.dominik.ontheroadalarm.databinding.ActivityAlarmBinding
 import java.io.IOException
 

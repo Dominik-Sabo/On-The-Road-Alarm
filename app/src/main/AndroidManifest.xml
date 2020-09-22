@@ -9,7 +9,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.CAMERA"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,8 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AlarmActivity"
-            android:screenOrientation="portrait"></activity>
+        <activity android:name=".activities.FavouritesActivity"></activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -32,10 +33,17 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".SettingsActivity"
+            android:name=".activities.EditFavouriteActivity"
+            android:label="@string/title_activity_edit_favourite"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.AlarmActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".MainActivity">
+            android:screenOrientation="portrait" />
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -43,7 +51,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".GeofenceBroadcastReceiver" />
+        <receiver android:name=".broadcastrecievers.GeofenceBroadcastReceiver" />
     </application>
 
 </manifest>

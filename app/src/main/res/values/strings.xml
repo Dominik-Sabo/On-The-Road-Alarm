@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">On The Road Alarm</string>
-    <string name="add">Add</string>
+    <string name="add">Add alarm</string>
     <string name="new_alarm">New Alarm</string>
     <string name="ringtone">Ringtone:</string>
     <string name="name">name</string>s
@@ -12,4 +12,16 @@
     <string name="activation_distance">Activation Distance:</string>
     <string name="alarm_name">Alarm Name</string>
     <string name="stop">stop</string>
+    <string name="m">m</string>
+    <string name="_0">0</string>
+    <string name="_10">10</string>
+    <string name="set_from_favourites">Set from favourites</string>
+    <string name="title_activity_edit_favourite">Map</string>
+    <string name="new_favourite">New Favourite</string>
+    <string name="favourite_place_name">Favourite place name</string>
+    <string name="description">Description</string>
+    <string name="favourites">Favourites</string>
+    <string name="add_favourite_place">add favourite place</string>
+    <string name="pick_image">Pick image</string>
+    <string name="camera">Camera</string>
 </resources>

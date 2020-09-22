@@ -1,17 +1,21 @@
-package com.sabo.dominik.ontheroadalarm
+package com.sabo.dominik.ontheroadalarm.recyclers
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.sabo.dominik.ontheroadalarm.clickinterfaces.AlarmClickInterface
+import com.sabo.dominik.ontheroadalarm.viewholders.AlarmViewHolder
+import com.sabo.dominik.ontheroadalarm.R
+import com.sabo.dominik.ontheroadalarm.models.Alarm
 
 
-class RecyclerAdapter(private val clickInterface: AlarmClickInterface) :
+class AlarmRecyclerAdapter(private val clickInterface: AlarmClickInterface) :
     RecyclerView.Adapter<AlarmViewHolder>() {
     private val dataList: MutableList<Alarm> = ArrayList()
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): AlarmViewHolder {
         val view: View =
-            LayoutInflater.from(viewGroup.context).inflate(R.layout.recycler_view, viewGroup, false)
+            LayoutInflater.from(viewGroup.context).inflate(R.layout.alarm_recycler_view, viewGroup, false)
         return AlarmViewHolder(view, clickInterface)
     }
 

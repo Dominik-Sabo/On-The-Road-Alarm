@@ -1,4 +1,4 @@
-package com.sabo.dominik.ontheroadalarm
+package com.sabo.dominik.ontheroadalarm.models
 
 import com.google.android.gms.maps.model.LatLng
 
