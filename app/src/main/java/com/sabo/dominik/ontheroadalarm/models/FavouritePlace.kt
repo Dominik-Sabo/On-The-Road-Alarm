@@ -1,7 +1,14 @@
 package com.sabo.dominik.ontheroadalarm.models
 
 import android.graphics.Bitmap
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.android.gms.maps.model.LatLng
 
-class FavouritePlace(var name: String, var location: LatLng, var description: String, var picture: Bitmap) {
+@Entity
+class FavouritePlace(var name: String, var latitude: Double, var longitude: Double, var description: String, var picture: String) {
+
+    @PrimaryKey(autoGenerate = true)
+    var id:Int? = null
+
 }

@@ -1,8 +1,14 @@
 package com.sabo.dominik.ontheroadalarm.models
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.android.gms.maps.model.LatLng
 
-class Alarm(var name: String, var location: LatLng, var ringtone: String, var activationDistance: Int, var isActive: Boolean) {
+@Entity
+class Alarm(var name: String, var latitude: Double, var longitude: Double, var ringtone: String, var activationDistance: Int, var isActive: Boolean) {
+
+    @PrimaryKey(autoGenerate = true)
+    var id:Int? = null
 
     fun toggle(){
         isActive = !isActive

@@ -27,7 +27,7 @@ import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.sabo.dominik.ontheroadalarm.models.Alarm
-import com.sabo.dominik.ontheroadalarm.AlarmRepository
+import com.sabo.dominik.ontheroadalarm.repository.AlarmRepository
 import com.sabo.dominik.ontheroadalarm.R
 import com.sabo.dominik.ontheroadalarm.databinding.ActivitySettingsBinding
 
@@ -35,6 +35,8 @@ import com.sabo.dominik.ontheroadalarm.databinding.ActivitySettingsBinding
 class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private val RESULT_DELETE = -2
+    private val REQUEST_RINGTONE = 999
+    private val REQUEST_FAVOURITE = 10
     private var finishFlag: Boolean = false
     private var deleteFlag: Boolean = false
 
@@ -67,7 +69,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             binding.etDistanceMs.setText((repository.alarms[position].activationDistance%1000).toString())
             ringtonePath = Uri.parse(repository.alarms[position].ringtone)
-            alarmLocation = repository.alarms[position].location
+            alarmLocation = LatLng(repository.alarms[position].latitude, repository.alarms[position].longitude)
             binding.btnDelete.visibility = View.VISIBLE;
         }
         else{
@@ -81,12 +83,12 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.tvRingtoneName.text = RingtoneManager.getRingtone(this, ringtonePath).getTitle(this)
 
         setClickListeners()
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         enableMyLocation()
-
 
         if(intent.hasExtra("position")){
             map.addCircle(CircleOptions().center(alarmLocation).radius((binding.etDistanceKms.text.toString().toInt()*1000 + binding.etDistanceMs.text.toString().toInt()).toDouble() ).strokeColor(Color.RED))
@@ -100,19 +102,24 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         map.setOnMapClickListener {
-            map.clear()
-            if(binding.etDistanceKms.text.isNotBlank() && binding.etDistanceMs.text.isNotBlank()){
-                map.addCircle(CircleOptions().center(it).radius((binding.etDistanceKms.text.toString().toInt()*1000 + binding.etDistanceMs.text.toString().toInt()).toDouble()).strokeColor(Color.RED))
-            }
-            else if(binding.etDistanceKms.text.isNotBlank()){
-                map.addCircle(CircleOptions().center(it).radius((binding.etDistanceKms.text.toString().toInt()*1000).toDouble()).strokeColor(Color.RED))
-            }
-            else if(binding.etDistanceMs.text.isNotBlank()){
-                map.addCircle(CircleOptions().center(it).radius((binding.etDistanceMs.text.toString().toInt()).toDouble()).strokeColor(Color.RED))
-            }
-            map.addMarker(MarkerOptions().position(it))
-            alarmLocation = it;
+
+            alarmLocation = it
+            markMap(alarmLocation)
         }
+    }
+
+    private fun markMap(location: LatLng){
+        map.clear()
+        if(binding.etDistanceKms.text.isNotBlank() && binding.etDistanceMs.text.isNotBlank()){
+            map.addCircle(CircleOptions().center(location).radius((binding.etDistanceKms.text.toString().toInt()*1000 + binding.etDistanceMs.text.toString().toInt()).toDouble()).strokeColor(Color.RED))
+        }
+        else if(binding.etDistanceKms.text.isNotBlank()){
+            map.addCircle(CircleOptions().center(location).radius((binding.etDistanceKms.text.toString().toInt()*1000).toDouble()).strokeColor(Color.RED))
+        }
+        else if(binding.etDistanceMs.text.isNotBlank()){
+            map.addCircle(CircleOptions().center(location).radius((binding.etDistanceMs.text.toString().toInt()).toDouble()).strokeColor(Color.RED))
+        }
+        map.addMarker(MarkerOptions().position(location))
     }
 
     private fun setClickListeners(){
@@ -154,7 +161,9 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         binding.btnFavs.setOnClickListener(){
-
+            val intent = Intent(this@SettingsActivity, FavouritesActivity::class.java)
+            intent.putExtra("get", 0)
+            startActivityForResult(intent, REQUEST_FAVOURITE)
         }
     }
 
@@ -184,26 +193,41 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, ringtonePath)
             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
-            startActivityForResult(intent, 999)
+            startActivityForResult(intent, REQUEST_RINGTONE)
         }
 
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == RESULT_OK && requestCode == 999) {
-            val uri = data!!.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
-            if (uri != null) {
-                ringtonePath = uri
-                binding.tvRingtoneName.text = RingtoneManager.getRingtone(this, ringtonePath).getTitle(
-                    this
-                )
+        if (resultCode == RESULT_OK) {
+            when(requestCode){
+                REQUEST_RINGTONE ->{
+                    val uri = data!!.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+                    if (uri != null) {
+                        ringtonePath = uri
+                        binding.tvRingtoneName.text = RingtoneManager.getRingtone(this, ringtonePath).getTitle(
+                            this
+                        )
+                    }
+                }
+                REQUEST_FAVOURITE -> {
+                    binding.etAlarmName.setText(data!!.getStringExtra("name"))
+                    alarmLocation = LatLng(
+                        data!!.getDoubleExtra("latitude", 0.0),
+                        data!!.getDoubleExtra("longitude", 0.0)
+                    )
+                    markMap(alarmLocation)
+                    map.moveCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            alarmLocation,
+                            10f
+                        )
+                    )
+                }
             }
-            super.onActivityResult(requestCode, resultCode, data)
         }
+        super.onActivityResult(requestCode, resultCode, data)
     }
-
-
-
 
     private fun enableMyLocation() {
         if (ContextCompat.checkSelfPermission(
@@ -246,26 +270,22 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun finish() {
         if(finishFlag){
             if (binding.etAlarmName.text.isBlank()) binding.etAlarmName.setText("Alarm")
+            val alarm = Alarm(
+                binding.etAlarmName.text.toString(),
+                alarmLocation.latitude,
+                alarmLocation.longitude,
+                ringtonePath.toString(),
+                (binding.etDistanceKms.text.toString().toInt() * 1000) + binding.etDistanceMs.text.toString().toInt(),
+                true
+            )
             if(intent.hasExtra("position")){
-                repository.alarms[position].name = binding.etAlarmName.text.toString()
-                repository.alarms[position].location = alarmLocation
-                repository.alarms[position].ringtone = ringtonePath.toString()
-                repository.alarms[position].activationDistance = (binding.etDistanceKms.text.toString().toInt() * 1000) + binding.etDistanceMs.text.toString().toInt()
-                repository.alarms[position].isActive = true
+                repository.update(position, alarm, application)
                 val data: Intent = Intent()
                 data.putExtra("position", position)
                 setResult(RESULT_OK, data)
             }
             else{
-                repository.add(
-                    Alarm(
-                        binding.etAlarmName.text.toString(),
-                        alarmLocation,
-                        ringtonePath.toString(),
-                        (binding.etDistanceKms.text.toString().toInt() * 1000) + binding.etDistanceMs.text.toString().toInt(),
-                        true
-                    )
-                )
+                repository.add(alarm, application)
                 setResult(RESULT_OK)
             }
         }
@@ -273,7 +293,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
             val data: Intent = Intent()
             data.putExtra("position", position)
             setResult(RESULT_DELETE, data)
-            repository.remove(position)
+            repository.remove(position, application)
         }
         super.finish()
     }

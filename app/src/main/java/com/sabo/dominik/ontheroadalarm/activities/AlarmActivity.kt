@@ -12,7 +12,7 @@ import android.os.PowerManager.WakeLock
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import com.sabo.dominik.ontheroadalarm.AlarmRepository
+import com.sabo.dominik.ontheroadalarm.repository.AlarmRepository
 import com.sabo.dominik.ontheroadalarm.R
 import com.sabo.dominik.ontheroadalarm.databinding.ActivityAlarmBinding
 import java.io.IOException
@@ -30,12 +30,11 @@ class AlarmActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_alarm)
 
-        if(repository.alarms.isEmpty()) repository.loadData(this)
+        if(repository.alarms.isEmpty()) repository.loadData(application)
 
         val position = intent.getIntExtra("position", 0)
 
         ringtone = Uri.parse(repository.alarms[position].ringtone)
-        repository.alarms[position].toggle()
         mediaPlayer = MediaPlayer()
 
         this.window.setFlags(
@@ -76,7 +75,7 @@ class AlarmActivity : AppCompatActivity() {
             mediaPlayer!!.stop();
             mediaPlayer!!.release();
             wakeLock!!.release();
-            repository.saveData(this)
+            repository.toggle(position, application)
             finish()
         }
 

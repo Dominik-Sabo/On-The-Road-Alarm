@@ -1,5 +1,6 @@
 package com.sabo.dominik.ontheroadalarm.viewholders
 
+import android.net.Uri
 import android.view.View
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -18,7 +19,7 @@ class FavouriteViewHolder(itemView: View, private val clickInterface: FavouriteC
     private val tvDescription: TextView = itemView.findViewById(R.id.tvFavDescription)
 
     fun setInfo(favPlace: FavouritePlace){
-        ivImg.setImageBitmap(favPlace.picture)
+        ivImg.setImageURI(Uri.parse(favPlace.picture))
         tvName.text = favPlace.name
         tvDescription.text = favPlace.description
     }

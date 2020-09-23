@@ -17,6 +17,7 @@ import com.sabo.dominik.ontheroadalarm.broadcastrecievers.GeofenceBroadcastRecei
 import com.sabo.dominik.ontheroadalarm.clickinterfaces.AlarmClickInterface
 import com.sabo.dominik.ontheroadalarm.databinding.ActivityMainBinding
 import com.sabo.dominik.ontheroadalarm.recyclers.AlarmRecyclerAdapter
+import com.sabo.dominik.ontheroadalarm.repository.AlarmRepository
 
 
 class MainActivity : AppCompatActivity(), AlarmClickInterface {
@@ -36,7 +37,7 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        if(repository.alarms.isEmpty()) repository.loadData(this)
+        if(repository.alarms.isEmpty()) repository.loadData(application)
 
         geofencingClient = LocationServices.getGeofencingClient(this)
 
@@ -55,11 +56,6 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
             val intent = Intent(this@MainActivity, FavouritesActivity::class.java)
             startActivity(intent)
         }
-    }
-
-    override fun onStop() {
-        repository.saveData(this)
-        super.onStop()
     }
 
     override fun onResume() {
@@ -110,7 +106,7 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
     }
 
     override fun onSwitchClick(position: Int) {
-        repository.alarms[position].toggle()
+        repository.toggle(position, application)
         if(repository.alarms[position].isActive){
             setGeoalarm(position)
             Toast.makeText(applicationContext, "Geoalarm set", Toast.LENGTH_SHORT).show()
@@ -145,22 +141,16 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
         }.build()
     }
 
-
     private fun buildGeofence(position: Int):Geofence{
         return Geofence.Builder()
             .setRequestId(position.toString())
             .setCircularRegion(
-                repository.alarms[position].location.latitude,
-                repository.alarms[position].location.longitude,
+                repository.alarms[position].latitude,
+                repository.alarms[position].longitude,
                 repository.alarms[position].activationDistance.toFloat()
             )
             .setExpirationDuration(Geofence.NEVER_EXPIRE)
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
             .build()
     }
-
-
-
-
-
 }

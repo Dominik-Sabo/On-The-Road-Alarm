@@ -2,15 +2,17 @@ package com.sabo.dominik.ontheroadalarm.activities
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentValues
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.location.Criteria
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -24,12 +26,12 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.sabo.dominik.ontheroadalarm.FavouriteRepository
+import com.sabo.dominik.ontheroadalarm.repository.FavouriteRepository
 import com.sabo.dominik.ontheroadalarm.R
 import com.sabo.dominik.ontheroadalarm.databinding.ActivityEditFavouriteBinding
 import com.sabo.dominik.ontheroadalarm.models.FavouritePlace
-import java.io.FileNotFoundException
-import java.io.InputStream
+import java.io.*
+import java.io.File.separator
 
 class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -38,7 +40,7 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
     private val RESULT_DELETE = -2
 
     private var hasPicture: Boolean = false
-    private lateinit var bitmap: Bitmap
+    private lateinit var picture: Uri
 
     private var finishFlag: Boolean = false
     private var deleteFlag: Boolean = false
@@ -65,9 +67,9 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
             binding.tvNew.text = repository.favourites[position].name
             binding.etFavName.setText(repository.favourites[position].name)
             binding.etFavDescription.setText(repository.favourites[position].description)
-            bitmap = repository.favourites[position].picture
-            binding.ivImg.setImageBitmap(bitmap)
-            favLocation = repository.favourites[position].location
+            picture = Uri.parse(repository.favourites[position].picture)
+            binding.ivImg.setImageURI(picture)
+            favLocation = LatLng(repository.favourites[position].latitude, repository.favourites[position].longitude)
             binding.btnDelete.visibility = View.VISIBLE;
         }
 
@@ -167,14 +169,17 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
             if (ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.CAMERA
-                ) == PackageManager.PERMISSION_GRANTED) {
+                ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                        this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED) {
                 val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 startActivityForResult(cameraIntent, CAMERA_REQUEST)
             }
             else {
                 ActivityCompat.requestPermissions(
                     this,
-                    arrayOf<String>(Manifest.permission.CAMERA),
+                    arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     1
                 )
             }
@@ -188,18 +193,17 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
                 GALLERY_REQUEST -> {
                     try {
                         val imageUri: Uri = data?.data!!
-                        val imageStream: InputStream? = contentResolver.openInputStream(imageUri)
-                        val selectedImage = BitmapFactory.decodeStream(imageStream)
-                        bitmap = selectedImage
+                        picture = imageUri
                         hasPicture = true
-                        binding.ivImg.setImageBitmap(bitmap)
+                        binding.ivImg.setImageURI(picture)
                     } catch (e: FileNotFoundException) {
                         e.printStackTrace()
                     }
                 }
                 CAMERA_REQUEST -> {
-                    bitmap = data!!.extras!!["data"] as Bitmap
-                    binding.ivImg.setImageBitmap(bitmap)
+                    val bitmap = data!!.extras!!["data"] as Bitmap
+                    saveImage(bitmap, this, "OnTheRoadAlarm")
+                    binding.ivImg.setImageURI(picture)
                 }
             }
         }
@@ -207,24 +211,21 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun finish() {
         if(finishFlag){
+            val favPlace = FavouritePlace(
+                binding.etFavName.text.toString(),
+                favLocation.latitude,
+                favLocation.longitude,
+                binding.etFavDescription.text.toString(),
+                picture.toString()
+            )
             if(intent.hasExtra("position")) {
-                repository.favourites[position].name = binding.etFavName.text.toString()
-                repository.favourites[position].location = favLocation
-                repository.favourites[position].description = binding.etFavDescription.text.toString()
-                repository.favourites[position].picture = bitmap
+                repository.update(position, favPlace, application)
                 val data: Intent = Intent()
                 data.putExtra("position", position)
                 setResult(RESULT_OK, data)
             }
             else{
-                repository.add(
-                    FavouritePlace(
-                        binding.etFavName.text.toString(),
-                        favLocation,
-                        binding.etFavDescription.text.toString(),
-                        bitmap
-                    )
-                )
+                repository.add(favPlace, application)
                 setResult(RESULT_OK)
             }
         }
@@ -232,9 +233,61 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
             val data: Intent = Intent()
             data.putExtra("position", position)
             setResult(RESULT_DELETE, data)
-            repository.remove(position)
+            repository.remove(position, application)
         }
         super.finish()
+    }
+
+    private fun saveImage(bitmap: Bitmap, context: Context, folderName: String) {
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            val values = contentValues()
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/$folderName")
+            values.put(MediaStore.Images.Media.IS_PENDING, true)
+            // RELATIVE_PATH and IS_PENDING are introduced in API 29.
+
+            val uri: Uri? = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            if (uri != null) {
+                saveImageToStream(bitmap, context.contentResolver.openOutputStream(uri))
+                values.put(MediaStore.Images.Media.IS_PENDING, false)
+                context.contentResolver.update(uri, values, null, null)
+            }
+        } else {
+            val directory = File(Environment.getExternalStorageDirectory().toString() + separator + folderName)
+            // getExternalStorageDirectory is deprecated in API 29
+
+            if (!directory.exists()) {
+                directory.mkdirs()
+            }
+            val fileName = System.currentTimeMillis().toString() + ".png"
+            val file = File(directory, fileName)
+            saveImageToStream(bitmap, FileOutputStream(file))
+            if (file.absolutePath != null) {
+                val values = contentValues()
+                values.put(MediaStore.Images.Media.DATA, file.absolutePath)
+                // .DATA is deprecated in API 29
+                context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+                picture = Uri.fromFile(file)
+            }
+        }
+    }
+
+    private fun contentValues() : ContentValues {
+        val values = ContentValues()
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+        values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+        values.put("datetaken", System.currentTimeMillis());
+        return values
+    }
+
+    private fun saveImageToStream(bitmap: Bitmap, outputStream: OutputStream?) {
+        if (outputStream != null) {
+            try {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                outputStream.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
 }
