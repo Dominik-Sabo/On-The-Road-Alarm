@@ -2,9 +2,11 @@ package com.sabo.dominik.ontheroadalarm.activities
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -48,11 +50,11 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
 
         alarmAdapter.addData(repository.alarms)
 
-        binding.btnAdd.setOnClickListener(){
+        binding.btnAdd.setOnClickListener {
             val intent = Intent(this@MainActivity, SettingsActivity::class.java)
             startActivityForResult(intent, NEW_REQUEST_CODE)
         }
-        binding.btnEdit.setOnClickListener(){
+        binding.btnEdit.setOnClickListener {
             val intent = Intent(this@MainActivity, FavouritesActivity::class.java)
             startActivity(intent)
         }
@@ -82,21 +84,25 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
             }
             RESULT_DELETE -> {
                 val position = data!!.getIntExtra("position", 0)
-                alarmAdapter.removeItem(position)
-                geofencingClient.removeGeofences(getPendingIntent(position))
-
-                for (i in position until repository.alarms.size) {
-                    unsetGeoalarm(i)
-                }
-
-                for (i in position until repository.alarms.size) {
-                    if (repository.alarms[position].isActive) {
-                        setGeoalarm(i)
-                    }
-                }
+                deleteAlarm(position)
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun deleteAlarm(position: Int){
+        alarmAdapter.removeItem(position)
+        geofencingClient.removeGeofences(getPendingIntent(position))
+
+        for (i in position until repository.alarms.size) {
+            unsetGeoalarm(i)
+        }
+
+        for (i in position until repository.alarms.size) {
+            if (repository.alarms[position].isActive) {
+                setGeoalarm(i)
+            }
+        }
     }
 
     override fun onAlarmClick(position: Int) {
@@ -115,6 +121,19 @@ class MainActivity : AppCompatActivity(), AlarmClickInterface {
             unsetGeoalarm(position)
             Toast.makeText(applicationContext, "Geoalarm unset", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    override fun onAlarmLongClick(position: Int) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete")
+            .setMessage("Are you sure you want to delete this alarm?")
+            .setPositiveButton(android.R.string.yes) { _: DialogInterface, _: Int ->
+                repository.remove(position, application)
+                deleteAlarm(position)
+            }
+            .setNegativeButton(android.R.string.no, null)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .show()
     }
 
     private fun unsetGeoalarm(position: Int) {

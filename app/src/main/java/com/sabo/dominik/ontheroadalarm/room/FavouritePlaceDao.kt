@@ -6,7 +6,7 @@ import com.sabo.dominik.ontheroadalarm.models.FavouritePlace
 @Dao
 interface FavouritePlaceDao {
     @Insert
-    fun insertFavPlace(alarm: FavouritePlace)
+    fun insertFavPlace(alarm: FavouritePlace): Long
 
     @Query("SELECT * FROM FavouritePlace")
     fun getFavPlaces(): List<FavouritePlace>

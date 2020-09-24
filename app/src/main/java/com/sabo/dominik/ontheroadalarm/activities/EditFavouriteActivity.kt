@@ -15,6 +15,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -60,7 +61,7 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        supportActionBar?.hide();
+        supportActionBar?.hide()
 
         if(intent.hasExtra("position")){
             position = intent.getIntExtra("position", 0)
@@ -70,7 +71,7 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
             picture = Uri.parse(repository.favourites[position].picture)
             binding.ivImg.setImageURI(picture)
             favLocation = LatLng(repository.favourites[position].latitude, repository.favourites[position].longitude)
-            binding.btnDelete.visibility = View.VISIBLE;
+            binding.btnDelete.visibility = View.VISIBLE
         }
 
         setClickListeners()
@@ -93,7 +94,7 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
         map.setOnMapClickListener {
             map.clear()
             map.addMarker(MarkerOptions().position(it))
-            favLocation = it;
+            favLocation = it
         }
     }
 
@@ -106,8 +107,8 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if(!intent.hasExtra("position")) {
                 val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-                val provider: String = locationManager.getBestProvider(Criteria(), true)
-                val currentLocation = locationManager.getLastKnownLocation(provider)
+                val provider = locationManager.getBestProvider(Criteria(), true)
+                val currentLocation = locationManager.getLastKnownLocation(provider!!)
                 favLocation = if(currentLocation == null) LatLng(0.0, 0.0)
                 else LatLng(currentLocation.latitude, currentLocation.longitude)
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(favLocation, 10f))
@@ -117,7 +118,7 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
         else {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 1
             )
         }
@@ -129,7 +130,7 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
             else {
                 ActivityCompat.requestPermissions(
                     this,
-                    arrayOf<String>(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
                     1
                 )
             }
@@ -137,16 +138,19 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun setClickListeners(){
-        binding.ivBackArrow.setOnClickListener(){
+        binding.ivBackArrow.setOnClickListener {
             finish()
         }
 
-        binding.ivDone.setOnClickListener(){
-            finishFlag = true
-            finish()
+        binding.ivDone.setOnClickListener {
+            if(this::picture.isInitialized){
+                finishFlag = true
+                finish()
+            }
+            else Toast.makeText(this, "Select an image!", Toast.LENGTH_SHORT).show()
         }
 
-        binding.btnDelete.setOnClickListener(){
+        binding.btnDelete.setOnClickListener {
             AlertDialog.Builder(this)
                 .setTitle("Delete")
                 .setMessage("Are you sure you want to delete this favourite place?")
@@ -156,16 +160,16 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 .setNegativeButton(android.R.string.no, null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
+                .show()
         }
         
-        binding.btnSelectImg.setOnClickListener(){
+        binding.btnSelectImg.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             startActivityForResult(intent, GALLERY_REQUEST)
         }
 
-        binding.btnCamera.setOnClickListener(){
+        binding.btnCamera.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.CAMERA
@@ -179,7 +183,7 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
             else {
                 ActivityCompat.requestPermissions(
                     this,
-                    arrayOf<String>(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     1
                 )
             }
@@ -211,6 +215,7 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun finish() {
         if(finishFlag){
+            if(binding.etFavName.text.isBlank()) binding.etFavName.setText("Favourite")
             val favPlace = FavouritePlace(
                 binding.etFavName.text.toString(),
                 favLocation.latitude,
@@ -220,7 +225,7 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
             )
             if(intent.hasExtra("position")) {
                 repository.update(position, favPlace, application)
-                val data: Intent = Intent()
+                val data = Intent()
                 data.putExtra("position", position)
                 setResult(RESULT_OK, data)
             }
@@ -230,7 +235,7 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
         else if(deleteFlag){
-            val data: Intent = Intent()
+            val data = Intent()
             data.putExtra("position", position)
             setResult(RESULT_DELETE, data)
             repository.remove(position, application)
@@ -274,8 +279,8 @@ class EditFavouriteActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun contentValues() : ContentValues {
         val values = ContentValues()
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
-        values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
-        values.put("datetaken", System.currentTimeMillis());
+        values.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() / 1000)
+        values.put("datetaken", System.currentTimeMillis())
         return values
     }
 

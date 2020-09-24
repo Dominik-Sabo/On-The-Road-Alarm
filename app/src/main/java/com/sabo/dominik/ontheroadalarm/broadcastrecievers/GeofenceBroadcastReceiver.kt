@@ -22,7 +22,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         val geofencingClient: GeofencingClient = LocationServices.getGeofencingClient(context!!.applicationContext)
         geofencingClient.removeGeofences(positions)
 
-        val ringIntent = Intent(context!!.applicationContext, AlarmActivity::class.java)
+        val ringIntent = Intent(context.applicationContext, AlarmActivity::class.java)
         ringIntent.putExtra("position", position)
         ringIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {

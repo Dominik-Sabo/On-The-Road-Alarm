@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.LatLng
 class Alarm(var name: String, var latitude: Double, var longitude: Double, var ringtone: String, var activationDistance: Int, var isActive: Boolean) {
 
     @PrimaryKey(autoGenerate = true)
-    var id:Int? = null
+    var id:Long? = null
 
     fun toggle(){
         isActive = !isActive

@@ -9,6 +9,6 @@ import com.google.android.gms.maps.model.LatLng
 class FavouritePlace(var name: String, var latitude: Double, var longitude: Double, var description: String, var picture: String) {
 
     @PrimaryKey(autoGenerate = true)
-    var id:Int? = null
+    var id:Long? = null
 
 }

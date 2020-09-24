@@ -14,12 +14,12 @@ class FavouriteRepository private constructor() {
         val instance: FavouriteRepository by lazy { HOLDER.INSTANCE }
     }
 
-    var favourites: ArrayList<FavouritePlace> = ArrayList<FavouritePlace>(0)
+    var favourites: ArrayList<FavouritePlace> = ArrayList(0)
 
     fun add(favouritePlace: FavouritePlace, application: Application) {
-        favourites.add(favouritePlace)
         val database = OnTheRoadAlarmDatabase.get(application)
-        database.run { database.getFavouritePlaceDao().insertFavPlace(favouritePlace) }
+        database.run { favouritePlace.id = database.getFavouritePlaceDao().insertFavPlace(favouritePlace) }
+        favourites.add(favouritePlace)
     }
 
     fun remove(index: Int, application: Application) {

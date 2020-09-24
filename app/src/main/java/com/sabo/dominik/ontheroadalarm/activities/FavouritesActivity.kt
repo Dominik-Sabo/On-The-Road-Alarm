@@ -1,9 +1,11 @@
 package com.sabo.dominik.ontheroadalarm.activities
 
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sabo.dominik.ontheroadalarm.*
@@ -40,7 +42,7 @@ class FavouritesActivity : AppCompatActivity(), FavouriteClickInterface {
             binding.btnAdd.visibility = View.GONE
         }
         else {
-            binding.btnAdd.setOnClickListener() {
+            binding.btnAdd.setOnClickListener {
                 val intent = Intent(this@FavouritesActivity, EditFavouriteActivity::class.java)
                 startActivityForResult(intent, NEW_REQUEST_CODE)
             }
@@ -70,7 +72,7 @@ class FavouritesActivity : AppCompatActivity(), FavouriteClickInterface {
 
     override fun onFavouritePlaceClick(position: Int) {
         if(intent.hasExtra("get")){
-            val data: Intent = Intent()
+            val data = Intent()
             data.putExtra("name", repository.favourites[position].name)
             data.putExtra("latitude", repository.favourites[position].latitude)
             data.putExtra("longitude", repository.favourites[position].longitude)
@@ -81,6 +83,22 @@ class FavouritesActivity : AppCompatActivity(), FavouriteClickInterface {
             val intent = Intent(this@FavouritesActivity, EditFavouriteActivity::class.java)
             intent.putExtra("position", position)
             startActivityForResult(intent, EDIT_REQUEST_CODE)
+        }
+    }
+
+    override fun onLongFavouritePlaceClick(position: Int) {
+        if (intent.hasExtra("get")) return
+        else{
+            AlertDialog.Builder(this)
+                .setTitle("Delete")
+                .setMessage("Are you sure you want to delete this favourite place?")
+                .setPositiveButton(android.R.string.yes) { _: DialogInterface, _: Int ->
+                    repository.remove(position, application)
+                    favAdapter.removeItem(position)
+                }
+                .setNegativeButton(android.R.string.no, null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show()
         }
     }
 }

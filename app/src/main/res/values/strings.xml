@@ -17,6 +17,7 @@
     <string name="_10">10</string>
     <string name="set_from_favourites">Set from favourites</string>
     <string name="title_activity_edit_favourite">Map</string>
+    <string name="title_activity_favourites">Favourites</string>
     <string name="new_favourite">New Favourite</string>
     <string name="favourite_place_name">Favourite place name</string>
     <string name="description">Description</string>

@@ -14,11 +14,11 @@ class AlarmRepository private constructor() {
         val instance: AlarmRepository by lazy { HOLDER.INSTANCE }
     }
 
-    var alarms: ArrayList<Alarm> = ArrayList<Alarm>(0)
+    var alarms: ArrayList<Alarm> = ArrayList(0)
 
     fun add(alarm: Alarm, application: Application) {
         val database = OnTheRoadAlarmDatabase.get(application)
-        database.run { alarm.id = database.getAlarmDao().insertAlarm(alarm).toInt() }
+        database.run { alarm.id = database.getAlarmDao().insertAlarm(alarm) }
         alarms.add(alarm)
     }
 

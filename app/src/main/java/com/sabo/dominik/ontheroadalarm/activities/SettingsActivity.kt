@@ -55,7 +55,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        supportActionBar?.hide();
+        supportActionBar?.hide()
 
         if(intent.hasExtra("position")){
             position = intent.getIntExtra("position", 0)
@@ -70,13 +70,13 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
             binding.etDistanceMs.setText((repository.alarms[position].activationDistance%1000).toString())
             ringtonePath = Uri.parse(repository.alarms[position].ringtone)
             alarmLocation = LatLng(repository.alarms[position].latitude, repository.alarms[position].longitude)
-            binding.btnDelete.visibility = View.VISIBLE;
+            binding.btnDelete.visibility = View.VISIBLE
         }
         else{
             ringtonePath = RingtoneManager.getActualDefaultRingtoneUri(
                 this,
                 RingtoneManager.TYPE_ALARM
-            );
+            )
         }
 
 
@@ -123,11 +123,11 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun setClickListeners(){
-        binding.ivBackArrow.setOnClickListener(){
+        binding.ivBackArrow.setOnClickListener {
             finish()
         }
 
-        binding.ivDone.setOnClickListener(){
+        binding.ivDone.setOnClickListener {
             if(binding.etDistanceKms.text.isBlank()) binding.etDistanceKms.setText("0")
             if(binding.etDistanceMs.text.isBlank()) binding.etDistanceMs.setText("0")
             if(binding.etDistanceKms.text.toString() == "0" && binding.etDistanceMs.text.toString() == "0"){
@@ -139,7 +139,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        binding.btnDelete.setOnClickListener(){
+        binding.btnDelete.setOnClickListener {
             AlertDialog.Builder(this)
                 .setTitle("Delete")
                 .setMessage("Are you sure you want to delete this alarm?")
@@ -149,18 +149,18 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 .setNegativeButton(android.R.string.no, null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
+                .show()
         }
 
-        binding.ivChevron.setOnClickListener(){
+        binding.ivChevron.setOnClickListener {
             selectRingtone()
         }
 
-        binding.tvRingtoneName.setOnClickListener(){
+        binding.tvRingtoneName.setOnClickListener {
             selectRingtone()
         }
 
-        binding.btnFavs.setOnClickListener(){
+        binding.btnFavs.setOnClickListener {
             val intent = Intent(this@SettingsActivity, FavouritesActivity::class.java)
             intent.putExtra("get", 0)
             startActivityForResult(intent, REQUEST_FAVOURITE)
@@ -213,8 +213,8 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
                 REQUEST_FAVOURITE -> {
                     binding.etAlarmName.setText(data!!.getStringExtra("name"))
                     alarmLocation = LatLng(
-                        data!!.getDoubleExtra("latitude", 0.0),
-                        data!!.getDoubleExtra("longitude", 0.0)
+                        data.getDoubleExtra("latitude", 0.0),
+                        data.getDoubleExtra("longitude", 0.0)
                     )
                     markMap(alarmLocation)
                     map.moveCamera(
@@ -238,8 +238,8 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if(!intent.hasExtra("position")) {
                 val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
-                val provider: String = locationManager.getBestProvider(Criteria(), true)
-                val currentLocation = locationManager.getLastKnownLocation(provider)
+                val provider = locationManager.getBestProvider(Criteria(), true)
+                val currentLocation = locationManager.getLastKnownLocation(provider!!)
                 alarmLocation = if(currentLocation == null) LatLng(0.0, 0.0)
                 else LatLng(currentLocation.latitude, currentLocation.longitude)
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(alarmLocation, 10f))
@@ -248,7 +248,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
         else {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf<String>(ACCESS_FINE_LOCATION),
+                arrayOf(ACCESS_FINE_LOCATION),
                 1
             )
         }
@@ -260,7 +260,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
             else {
                 ActivityCompat.requestPermissions(
                     this,
-                    arrayOf<String>(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
                     1
                 )
             }
@@ -280,7 +280,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
             )
             if(intent.hasExtra("position")){
                 repository.update(position, alarm, application)
-                val data: Intent = Intent()
+                val data = Intent()
                 data.putExtra("position", position)
                 setResult(RESULT_OK, data)
             }
@@ -290,7 +290,7 @@ class SettingsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
         else if(deleteFlag){
-            val data: Intent = Intent()
+            val data = Intent()
             data.putExtra("position", position)
             setResult(RESULT_DELETE, data)
             repository.remove(position, application)

@@ -11,7 +11,7 @@ import com.sabo.dominik.ontheroadalarm.R
 import com.sabo.dominik.ontheroadalarm.models.FavouritePlace
 
 class FavouriteViewHolder(itemView: View, private val clickInterface: FavouriteClickInterface) :
-    RecyclerView.ViewHolder(itemView), View.OnClickListener {
+    RecyclerView.ViewHolder(itemView), View.OnClickListener, View.OnLongClickListener {
 
     private val rvLayout: RelativeLayout = itemView.findViewById(R.id.rvFavLayout)
     private val ivImg: ImageView = itemView.findViewById(R.id.ivFavImg)
@@ -25,10 +25,16 @@ class FavouriteViewHolder(itemView: View, private val clickInterface: FavouriteC
     }
 
     init {
+        rvLayout.setOnLongClickListener(this)
         rvLayout.setOnClickListener(this)
     }
 
     override fun onClick(view: View?) {
         clickInterface.onFavouritePlaceClick(adapterPosition)
+    }
+
+    override fun onLongClick(view: View?): Boolean {
+        clickInterface.onLongFavouritePlaceClick(adapterPosition)
+        return true
     }
 }
